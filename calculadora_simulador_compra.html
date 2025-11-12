@@ -1,0 +1,47 @@
+# Simulador de Compra em Python
+
+# Dicionário com as taxas de juros por número de parcelas
+taxas = {
+    1: 4.2,
+    2: 6.09,
+    3: 7.01,
+    4: 7.91,
+    5: 8.88,
+    6: 9.67,
+    7: 12.59,
+    8: 13.42,
+    9: 14.25,
+    10: 15.06,
+    11: 15.87,
+    12: 16.66
+}
+
+def format_brl(valor):
+    return f"R$ {valor:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+
+def calcular_compra(valor, parcelas):
+    if parcelas not in taxas:
+        raise ValueError("Número de parcelas inválido. Escolha entre 1 e 12.")
+
+    taxa = taxas[parcelas]
+    total_com_juros = valor * (1 + taxa / 100)
+    valor_parcela = total_com_juros / parcelas
+
+    print("\n==============================")
+    print("       SIMULADOR DE COMPRA")
+    print("==============================")
+    print(f"Valor da compra: {format_brl(valor)}")
+    print(f"Parcelas: {parcelas}x de {format_brl(valor_parcela)}")
+    print(f"Taxa aplicada: {taxa:.2f}%")
+    print(f"Valor total com juros: {format_brl(total_com_juros)}")
+    print("==============================\n")
+
+if __name__ == "__main__":
+    try:
+        valor = float(input("Digite o valor da compra (R$): ").replace(',', '.'))
+        parcelas = int(input("Digite a quantidade de parcelas (1 a 12): "))
+        calcular_compra(valor, parcelas)
+    except ValueError as e:
+        print(f"Erro: {e}")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
