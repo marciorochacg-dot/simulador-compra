@@ -1,47 +1,74 @@
-# Simulador de Compra em Python
+<!doctype html>
 
-# Dicionário com as taxas de juros por número de parcelas
-taxas = {
-    1: 4.2,
-    2: 6.09,
-    3: 7.01,
-    4: 7.91,
-    5: 8.88,
-    6: 9.67,
-    7: 12.59,
-    8: 13.42,
-    9: 14.25,
-    10: 15.06,
-    11: 15.87,
-    12: 16.66
-}
+  <script>
+    // Mapeamento das taxas conforme solicitado (em porcentagem)
+    const taxas = {
+      1: 4.2,
+      2: 6.09,
+      3: 7.01,
+      4: 7.91,
+      5: 8.88,
+      6: 9.67,
+      7: 12.59,
+      8: 13.42,
+      9: 14.25,
+      10: 15.06,
+      11: 15.87,
+      12: 16.66
+    };
 
-def format_brl(valor):
-    return f"R$ {valor:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+    const form = document.getElementById('simulador');
+    const saida = document.getElementById('saida');
+    const erro = document.getElementById('erro');
 
-def calcular_compra(valor, parcelas):
-    if parcelas not in taxas:
-        raise ValueError("Número de parcelas inválido. Escolha entre 1 e 12.")
+    function formatBRL(number){
+      return Number(number).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+    }
 
-    taxa = taxas[parcelas]
-    total_com_juros = valor * (1 + taxa / 100)
-    valor_parcela = total_com_juros / parcelas
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      erro.style.display = 'none';
 
-    print("\n==============================")
-    print("       SIMULADOR DE COMPRA")
-    print("==============================")
-    print(f"Valor da compra: {format_brl(valor)}")
-    print(f"Parcelas: {parcelas}x de {format_brl(valor_parcela)}")
-    print(f"Taxa aplicada: {taxa:.2f}%")
-    print(f"Valor total com juros: {format_brl(total_com_juros)}")
-    print("==============================\n")
+      const valorRaw = document.getElementById('valor').value;
+      const parcelas = Number(document.getElementById('parcelas').value);
 
-if __name__ == "__main__":
-    try:
-        valor = float(input("Digite o valor da compra (R$): ").replace(',', '.'))
-        parcelas = int(input("Digite a quantidade de parcelas (1 a 12): "))
-        calcular_compra(valor, parcelas)
-    except ValueError as e:
-        print(f"Erro: {e}")
-    except Exception as e:
-        print(f"Ocorreu um erro inesperado: {e}")
+      const valor = parseFloat(valorRaw);
+      if (isNaN(valor) || valor <= 0){
+        erro.textContent = 'Por favor, informe um valor de compra válido (maior que zero).';
+        erro.style.display = 'block';
+        saida.style.display = 'none';
+        return;
+      }
+
+      const taxa = taxas[parcelas];
+      if (taxa === undefined){
+        erro.textContent = 'Número de parcelas inválido.';
+        erro.style.display = 'block';
+        saida.style.display = 'none';
+        return;
+      }
+
+      // Cálculo: aplica-se a taxa única sobre o valor total
+      const totalComJuros = valor * (1 + taxa / 100);
+      const valorParcela = totalComJuros / parcelas;
+
+      // Monta mensagem de resultado
+      const mensagem = `Resultado:\n\nValor da compra: ${formatBRL(valor)}\nParcelas: ${parcelas}x à ${formatBRL(valorParcela)} cada\nTaxa aplicada: ${taxa.toFixed(2)}%\nValor total com juros: ${formatBRL(totalComJuros)}`;
+
+      // Exibe de forma amigável em HTML
+      saida.innerHTML = `
+        <strong>Resultado</strong>
+        <div style="margin-top:10px">Valor da compra: <strong>${formatBRL(valor)}</strong></div>
+        <div>Parcelas: <strong>${parcelas}x de ${formatBRL(valorParcela)}</strong></div>
+        <div>Taxa aplicada: <strong>${taxa.toFixed(2)}%</strong></div>
+        <div style="margin-top:8px">Valor total com juros: <strong>${formatBRL(totalComJuros)}</strong></div>
+        <div class="small" style="margin-top:10px;">Mensagem: O valor total já considera a taxa correspondente ao número de parcelas selecionado.</div>
+      `;
+
+      saida.style.display = 'block';
+      // Também coloca atenção para leitores de tela
+      saida.setAttribute('aria-hidden', 'false');
+    });
+  </script>
+</body>
+</html>
